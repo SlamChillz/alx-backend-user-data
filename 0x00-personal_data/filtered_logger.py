@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
-Defines a function that filters logs
+Defines a logger with custom log formatter
 """
 import re
 import logging
-from typing import List
+from typing import List, Tuple
+
+
+PII_FIELDS: Tuple[str] = ('name', 'email', 'phone', 'ssn', 'password')
 
 
 def filter_datum(
@@ -40,3 +43,15 @@ class RedactingFormatter(logging.Formatter):
         """
         log = super(RedactingFormatter, self).format(record=record)
         return filter_datum(self.fields, self.REDACTION, log, self.SEPARATOR)
+
+
+def get_logger() -> logging.Logger:
+    """
+    Creates and configures a logger
+    """
+    logger = logging.getLogger('user_data').setLevel(logging.INFO)
+    logger.propagate = False
+    handler = logging.StreamHandler()
+    handler.setFormatter(RedactingFormatter(fields=PII_FIELDS))
+    logger.addHandler(handler)
+    return logger
