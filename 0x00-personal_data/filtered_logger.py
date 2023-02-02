@@ -8,10 +8,12 @@ from typing import List
 
 def filter_datum(
     fields: List[str], redaction: str,
-    message: str, seperator: str
+    message: str, separator: str
 ) -> str:
-    """Filters message by replacing each value in fields with redaction"""
+    """
+    Filters message by replacing each value in fields with redaction
+    """
     for key in fields:
-        pattern = r'({0}=)([^{1}]*)({1})'.format(key, seperator)
-        message = re.sub(pattern, r'\1{}\3'.format(redaction), message)
+        pattern = r'({0}=)[^{1}]*({1})'.format(key, separator)
+        message = re.sub(pattern, r'\1{}\2'.format(redaction), message)
     return message
