@@ -2,9 +2,12 @@
 """
 Defines a logger with custom log formatter
 """
+import os
 import re
 import logging
 from typing import List, Tuple
+
+import mysql.connector
 
 
 PII_FIELDS: Tuple[str] = ('name', 'email', 'phone', 'ssn', 'password')
@@ -55,3 +58,16 @@ def get_logger() -> logging.Logger:
     handler.setFormatter(RedactingFormatter(fields=PII_FIELDS))
     logger.addHandler(handler)
     return logger
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """
+    Connects to a mysql database
+    """
+    connector = mysql.connector.connect(
+        host=os.getenv('PERSONAL_DATA_DB_HOST'),
+        database=os.getenv('PERSONAL_DATA_DB_NAME'),
+        user=os.getenv('PERSONAL_DATA_DB_USERNAME'),
+        password=os.getenv('PERSONAL_DATA_DB_PASSWORD')
+    )
+    return connector
