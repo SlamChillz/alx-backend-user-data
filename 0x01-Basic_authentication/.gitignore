@@ -1,0 +1,11 @@
+# virtual environment
+venv/*
+
+# cpython compiled files
+**/__pycache__/*
+
+# mypy linting cache files
+**/.mypy_cache/*
+
+# mac cache store
+**/.DS_Store
