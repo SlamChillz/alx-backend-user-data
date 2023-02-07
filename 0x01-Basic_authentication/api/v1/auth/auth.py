@@ -38,7 +38,7 @@ class Auth:
         """
         Extract authorization header
         """
-        auth = request.headers.get('Authorization', None)
+        auth = request.headers.get('Authorization', None) if request else None
         if request is None or auth is None:
             return None
         return auth
