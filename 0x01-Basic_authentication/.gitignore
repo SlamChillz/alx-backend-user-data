@@ -12,3 +12,6 @@ venv/*
 
 # test files
 **/main_*.py
+
+# file storge
+**/*.json
