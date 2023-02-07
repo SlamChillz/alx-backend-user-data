@@ -9,3 +9,6 @@ venv/*
 
 # mac cache store
 **/.DS_Store
+
+# test files
+**/main_*.py
