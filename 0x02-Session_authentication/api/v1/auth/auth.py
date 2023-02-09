@@ -50,7 +50,7 @@ class Auth:
         Holds the current authenticated logged in user
         """
         return None
-    
+
     def session_cookie(self, request=None) -> Union[str, None]:
         """
         Get a cookie value from a request object
@@ -58,4 +58,4 @@ class Auth:
         if request is None:
             return None
         cookie_name = os.getenv('SESSION_NAME')
-        return request.cookies.get(cookie_name)        
+        return request.cookies.get(cookie_name)
