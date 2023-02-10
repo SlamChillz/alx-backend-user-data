@@ -3,7 +3,7 @@
 Defines SessionExpAuth class that implements session expiration
 """
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 
 from api.v1.auth.session_auth import SessionAuth
@@ -17,6 +17,7 @@ class SessionExpAuth(SessionAuth):
         """
         Instialize a SessionExpAuth instance
         """
+        super().__init__()
         try:
             duration = int(os.environ.get('SESSION_DURATION', 0))
         except Exception:
@@ -28,7 +29,7 @@ class SessionExpAuth(SessionAuth):
         Create session id from random string
         """
         session_id = super().create_session(user_id)
-        if session_id == None:
+        if session_id is None:
             return None
         self.user_id_by_session_id[session_id] = {
             'user_id': user_id, 'created_at': datetime.now()}
@@ -38,25 +39,16 @@ class SessionExpAuth(SessionAuth):
         """
         Get user id from given session id
         """
-        if session_id == None:
+        if session_id is None:
             return None
         if session_id not in self.user_id_by_session_id:
             return None
+        session_dictionary = self.user_id_by_session_id.get(session_id)
         if self.session_duration <= 0:
-            return self.user_id_by_session_id[session_id]['user_id']
-        if 'created_at' not in self.user_id_by_session_id[session_id]:
+            return session_dictionary.get('user_id')
+        if 'created_at' not in session_dictionary:
             return None
-        created_at = self.user_id_by_session_id[session_id]['created_at']
-        if self._has_expired(created_at):
+        if timedelta(seconds=self.session_duration) + \
+                session_dictionary.get('created_at') <= datetime.now():
             return None
-        return self.user_id_by_session_id[session_id]['user_id']
-    
-    def _has_expired(self, created_at) -> bool:
-        """
-        Checks if session has expired
-        """
-        time_diff = created_at - datetime.now()
-        time_diff = divmod(time_diff.days * 24 * 60 * 60 + \
-                           time_diff.seconds + self.session_duration, 60)
-        print(time_diff)
-        return time_diff < (0, 0)
+        return session_dictionary.get('user_id')

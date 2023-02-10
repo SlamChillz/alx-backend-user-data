@@ -22,9 +22,9 @@ def session_login() -> str:
       - 404 if a user with the email is not found
     """
     email, password = request.form.get('email'), request.form.get('password')
-    if email is None:
+    if email is None or '':
         return jsonify({"error": "email missing"}), 400
-    if password is None:
+    if password is None or '':
         return jsonify({"error": "password missing"}), 400
     user = User.search({'email': email})
     if user == []:

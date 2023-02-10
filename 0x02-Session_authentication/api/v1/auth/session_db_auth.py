@@ -2,6 +2,7 @@
 """
 Defines Session Auth class that uses a file storage DB
 """
+from datetime import datetime, timedelta
 from typing import Union
 
 from models.user_session import UserSession
@@ -16,7 +17,9 @@ class SessionDBAuth(SessionExpAuth):
         """
         Create session id from random string
         """
-        session_id =  super().create_session(user_id)
+        if user_id is None or type(user_id) != str:
+            return None
+        session_id = super().create_session(user_id)
         if session_id:
             kwargs = {'user_id': user_id, 'session_id': session_id}
             new_user_session = UserSession(**kwargs)
@@ -27,10 +30,11 @@ class SessionDBAuth(SessionExpAuth):
         """
         Get user id based on session id from DB
         """
-        usersession = UserSession.get(session_id)
-        if usersession:
-            if not self._has_expired(usersession.created_at):
-                return usersession.user_id
+        users_session = UserSession.search({'session_id': session_id})
+        if users_session != []:
+            if not (timedelta(seconds=self.session_duration) +
+                    users_session[0].created_at <= datetime.now()):
+                return users_session[0].user_id
         return None
 
     def destroy_session(self, request=None) -> bool:
@@ -42,8 +46,10 @@ class SessionDBAuth(SessionExpAuth):
         session_id = self.session_cookie(request)
         if session_id is None:
             return False
-        usersession = UserSession.get(session_id)
-        if not usersession:
+        if self.user_id_for_session_id(session_id) is None:
             return False
-        usersession.remove()
-        return True
+        usersession = UserSession.search({'session_id': session_id})
+        if usersession != []:
+            usersession[0].remove()
+            return True
+        return False
