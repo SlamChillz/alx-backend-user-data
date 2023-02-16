@@ -1,0 +1,11 @@
+# database
+a.db
+
+# cache
+__pycache__/*
+
+# shell script
+run
+
+# virtual environment
+venv/
